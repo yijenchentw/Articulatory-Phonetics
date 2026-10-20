@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>英語語音學練習</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f4ef;--card:#fff;--ink:#1d2430;--mute:#6b7280;--acc:#1f5f5b;--accbg:#e1efed;--ok:#1d7a46;--okbg:#dff3e7;--bad:#b3261e;--badbg:#fbe4e2;--line:#d9d6cd}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14181d;--card:#1c222a;--ink:#e8ebef;--mute:#9aa3ae;--acc:#6fc2bb;--accbg:#233a39;--ok:#6fd29a;--okbg:#1d3a2b;--bad:#f2837c;--badbg:#44211f;--line:#323a45}}
+:root[data-theme="dark"]{--bg:#14181d;--card:#1c222a;--ink:#e8ebef;--mute:#9aa3ae;--acc:#6fc2bb;--accbg:#233a39;--ok:#6fd29a;--okbg:#1d3a2b;--bad:#f2837c;--badbg:#44211f;--line:#323a45}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.6rem;margin:.2em 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+.mute{color:var(--mute);font-size:.9rem}
+button{font:inherit;color:inherit;cursor:pointer}
+.btn{background:var(--acc);color:var(--bg);border:0;border-radius:10px;padding:10px 18px;font-weight:600}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.ghost{background:none;color:var(--acc);border:1px solid var(--acc)}
+input{font:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
+.tasks{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+@media(max-width:560px){.tasks{grid-template-columns:1fr}}
+.task{text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.task:hover{border-color:var(--acc)}
+.task.done{background:var(--okbg);border-color:var(--ok)}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;background:var(--acc);transition:width .3s}
+.sym{font:700 3.4rem/1.1 "Charis SIL","Doulos SIL","Gentium Plus",Georgia,serif;color:var(--acc);text-align:center}
+.word{text-align:center;margin-bottom:10px}
+.word b{color:var(--acc);text-decoration:underline}
+.row{margin:12px 0}
+.row>div:first-child{font-weight:600;font-size:.9rem;margin-bottom:4px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:.92rem}
+.opt.sel{background:var(--accbg);border-color:var(--acc);font-weight:600}
+.opt.ok{background:var(--okbg);border-color:var(--ok)}
+.opt.bad{background:var(--badbg);border-color:var(--bad)}
+.fb{min-height:1.5em;margin:8px 0;font-weight:600}
+.cert{border:3px double var(--acc);text-align:center;padding:28px 16px}
+.cert h2{font-size:1.8rem;margin:0 0 6px;color:var(--acc)}
+.cert .nm{font-size:1.8rem;font-weight:700;margin:10px 0;border-bottom:2px solid var(--line);display:inline-block;padding:0 20px}
+.cert table{margin:12px auto;border-collapse:collapse;text-align:left}
+.cert td{padding:3px 12px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+</style></head><body><main id="app"></main>
+<script>
+const $=s=>document.querySelector(s);
+const C=[ // sym, word, voicing(v voiced/a aspirated/u unaspirated), place, manner
+["[pʰ]","<b>p</b>ie [pʰaɪ]","a","bilabial","stop"],["[p]","s<b>p</b>y [spaɪ]","u","bilabial","stop"],["b","<b>b</b>uy /baɪ/","v","bilabial","stop"],
+["[tʰ]","<b>t</b>ie [tʰaɪ]","a","alveolar","stop"],["[t]","s<b>t</b>ay [steɪ]","u","alveolar","stop"],["d","<b>d</b>ie /daɪ/","v","alveolar","stop"],
+["[kʰ]","<b>k</b>ey [kʰi]","a","velar","stop"],["[k]","s<b>k</b>y [skaɪ]","u","velar","stop"],["g","<b>g</b>o /goʊ/","v","velar","stop"],
+["f","<b>f</b>ine /faɪn/","x","labiodental","fricative"],["v","<b>v</b>ine /vaɪn/","v","labiodental","fricative"],
+["θ","<b>th</b>in /θɪn/","x","dental","fricative"],["ð","<b>th</b>en /ðɛn/","v","dental","fricative"],
+["s","<b>s</b>ip /sɪp/","x","alveolar","fricative"],["z","<b>z</b>ip /zɪp/","v","alveolar","fricative"],
+["ʃ","<b>sh</b>ip /ʃɪp/","x","post-alveolar","fricative"],["ʒ","vi<b>s</b>ion /ˈvɪʒən/","v","post-alveolar","fricative"],
+["h","<b>h</b>at /hæt/","x","glottal","fricative"],
+["tʃ","<b>ch</b>ip /tʃɪp/","x","post-alveolar","affricate"],["dʒ","<b>j</b>et /dʒɛt/","v","post-alveolar","affricate"],
+["m","<b>m</b>ap /mæp/","v","bilabial","nasal"],["n","<b>n</b>ap /næp/","v","alveolar","nasal"],["ŋ","si<b>ng</b> /sɪŋ/","v","velar","nasal"],
+["l","<b>l</b>ip /lɪp/","v","alveolar","lateral"],["r","<b>r</b>ip /rɪp/","v","alveolar","approximant"],
+["j","<b>y</b>es /jɛs/","v","palatal","approximant"],["w","<b>w</b>et /wɛt/","v","labial-velar","approximant"],["[ɾ]","bu<b>tt</b>er [ˈbʌɾɚ]","v","alveolar","flap"],["[ʔ]","uh<b>-</b>oh [ˈʌʔoʊ]","u","glottal","stop"],["[ʍ]","<b>wh</b>ich [ʍɪtʃ]","x","labial-velar","fricative"]
+].map(r=>({s:r[0],w:r[1],a:{voi:r[2]==="v"?"v":"x",asp:r[2]==="a"?"aspirated":"no",place:r[3],manner:r[4]}}));
+const V=[ // sym, word, height, backness, tense, round, retro, stress
+["i","b<b>ea</b>t /bit/","high","front","tense","unrounded","no","stressed"],
+["ɪ","b<b>i</b>t /bɪt/","high","front","lax","unrounded","no","stressed"],
+["ɛ","b<b>e</b>t /bɛt/","mid","front","lax","unrounded","no","stressed"],
+["æ","b<b>a</b>t /bæt/","low","front","lax","unrounded","no","stressed"],
+["ɑ","f<b>a</b>ther /ˈfɑðɚ/","low","back","tense","unrounded","no","stressed"],
+["ɔ","th<b>ou</b>ght /θɔt/","mid","back","tense","rounded","no","stressed"],
+["ʊ","b<b>oo</b>k /bʊk/","high","back","lax","rounded","no","stressed"],
+["u","b<b>oo</b>t /but/","high","back","tense","rounded","no","stressed"],
+["ʌ","c<b>u</b>p /kʌp/","mid","central","lax","unrounded","no","stressed"],
+["ə","<b>a</b>bout /əˈbaʊt/","mid","central","lax","unrounded","no","unstressed"],
+["ɝ","b<b>ir</b>d /bɝd/","mid","central","tense","unrounded","yes","stressed"],
+["ɚ","butt<b>er</b> /ˈbʌtɚ/","mid","central","lax","unrounded","yes","unstressed"]
+].map(r=>({s:r[0],w:r[1],a:{height:r[2],back:r[3],tense:r[4],round:r[5],retro:r[6],stress:r[7]}}));
+const L={voi:["Voicing 發聲",[["v","voiced 濁音"],["x","voiceless 清音"]]],asp:["Aspiration 送氣 <span class=\"mute\" style=\"font-weight:400\">（只有 aspirated 的子音才需要選 aspirated；其他子音不用選）</span>",[["aspirated","aspirated 送氣"]]],
+place:["Place 發音部位",["bilabial","labiodental","dental","alveolar","post-alveolar","palatal","velar","labial-velar","glottal"].map(x=>[x,x])],
+manner:["Manner 發音方式",["stop","fricative","approximant","affricate","nasal","lateral","flap"].map(x=>[x,x])],
+height:["Height 舌位高低",["high","mid","low"].map(x=>[x,x])],
+back:["Backness 舌位前後",["front","central","back"].map(x=>[x,x])],
+tense:["Tense / Lax 緊鬆",[["tense","tense 緊"],["lax","lax 鬆"]]],
+round:["Rounded 圓唇 <span class=\"mute\" style=\"font-weight:400\">（只有圓唇母音才需要選 rounded；其他母音不用選）</span>",[["rounded","rounded 圓唇"]]],
+retro:["Retroflex 捲舌 <span class=\"mute\" style=\"font-weight:400\">（只有捲舌母音才需要選 retroflex；其他母音不用選）</span>",[["yes","retroflex 捲舌"]]],
+stress:["Stress 重音 <span class=\"mute\" style=\"font-weight:400\">（只有 unstressed 母音才需要選 unstressed；其他母音不用選）</span>",[["unstressed","unstressed 非重讀"]]]};
+const T={c:{name:"練習一：子音",desc:"30 個題目：辨識 voicing & aspiration、place、manner",items:C,dims:["voi","asp","place","manner"]},
+v:{name:"練習二：單母音",desc:"12 個單母音：high/mid/low、front/central/back、tense/lax、rounded、retroflex、unstressed",items:V,dims:["height","back","tense","round","retro","stress"]}};
+const NEG={stress:"stressed",round:"unrounded",retro:"no",asp:"no"};const S={name:"",t0:0,c:null,v:null,done:{c:false,v:false},stat:{c:null,v:null}};
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function home(){
+ const both=S.done.c&&S.done.v;
+ $("#app").innerHTML=`<h1>英語語音學練習</h1><p class="mute">完成兩個練習後，會出現完成畫面，請截圖上傳moodle作業區。</p>
+ <div class="card"><label>你的姓名／學號<input id="nm" value="${S.name}" placeholder="請輸入姓名或學號" maxlength="30"></label></div>
+ <div class="tasks">${["c","v"].map(k=>`<button class="task ${S.done[k]?"done":""}" onclick="start('${k}')"><b>${T[k].name}</b> ${S.done[k]?"✓":""}<div class="mute">${T[k].desc}</div></button>`).join("")}</div>
+ <p style="text-align:center"><button class="btn" ${both?"":"disabled"} onclick="finish()">查看完成畫面</button></p>`;
+ $("#nm").oninput=e=>S.name=e.target.value.trim();
+}
+function start(k){
+ if(!S.name){$("#nm").focus();$("#nm").style.borderColor="var(--bad)";return}
+ if(!S.t0)S.t0=Date.now();
+ S[k]={q:shuf(T[k].items),i:0,att:0,first:0,sel:{},checked:false};quiz(k);
+}
+function quiz(k){
+ const s=S[k],t=T[k],it=s.q[s.i];
+ $("#app").innerHTML=`<div class="top"><b>${t.name}</b><button class="btn ghost" onclick="home()">返回</button></div>
+ <div class="mute">第 ${s.i+1} / ${s.q.length} 題</div><div class="bar"><i style="width:${s.i/s.q.length*100}%"></i></div>
+ <div class="card"><div class="sym">${it.s[0]==="["?it.s:"/"+it.s+"/"}</div><div class="word">${it.w}</div>
+ ${t.dims.map(d=>`<div class="row"><div>${L[d][0]}</div><div class="opts">${L[d][1].map(o=>`<button class="opt" data-d="${d}" data-v="${o[0]}">${o[1]}</button>`).join("")}</div></div>`).join("")}
+ <div class="fb" id="fb"></div><button class="btn" id="go">檢查答案</button></div>`;
+ s.sel={};let fresh=true;
+ document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+  if(s.checked)return;const d=b.dataset.d;if((d in NEG)&&s.sel[d]){delete s.sel[d];b.classList.remove("sel");return}s.sel[d]=b.dataset.v;
+  document.querySelectorAll(`.opt[data-d="${d}"]`).forEach(x=>x.classList.remove("sel","bad"));b.classList.add("sel")});
+ $("#go").onclick=()=>{
+  if(s.checked){s.i++;s.checked=false;if(s.i>=s.q.length){S.done[k]=true;S.stat[k]={att:s.att,first:s.first,n:s.q.length};return home()}return quiz(k)}
+  if(t.dims.some(d=>!(d in NEG)&&!s.sel[d])){$("#fb").textContent="請每一項都作答。";$("#fb").style.color="var(--bad)";return}
+  s.att++;let wrong=0;
+  t.dims.forEach(d=>{document.querySelectorAll(`.opt[data-d="${d}"]`).forEach(b=>{b.classList.remove("bad","ok")});
+   const sel=document.querySelector(`.opt[data-d="${d}"].sel`);
+   if(s.sel[d]===(it.a[d]===NEG[d]?undefined:it.a[d])){if(sel)sel.classList.add("ok")}else{wrong++;if(sel){sel.classList.add("bad");sel.classList.remove("sel")}delete s.sel[d]}});
+  if(!wrong){if(fresh)s.first++;s.checked=true;$("#fb").textContent="✓ 全部正確！";$("#fb").style.color="var(--ok)";
+   $("#go").textContent=s.i+1>=s.q.length?"完成此練習":"下一題"}
+  else{fresh=false;$("#fb").textContent=`有 ${wrong} 項不正確（紅色），請重新選擇。`;$("#fb").style.color="var(--bad)"}
+ };
+}
+function finish(){
+ const m=Math.max(1,Math.round((Date.now()-S.t0)/60000)),d=new Date();
+ const code=[...S.name+d.toDateString()].reduce((h,c)=>(h*31+c.charCodeAt(0))>>>0,7).toString(36).toUpperCase();
+ const row=(k)=>`<tr><td>${T[k].name}</td><td>一次答對 ${S.stat[k].first}/${S.stat[k].n}　作答 ${S.stat[k].att} 次</td></tr>`;
+ $("#app").innerHTML=`<div class="card cert"><div style="font-size:3rem">🎓</div><h2>練習完成 Practice Completed</h2>
+ <div class="mute">英語語音學：子音與單母音辨識</div><div class="nm">${S.name.replace(/</g,"&lt;")}</div>
+ <table>${row("c")}${row("v")}<tr><td>完成時間</td><td>${d.toLocaleString("zh-TW")}</td></tr><tr><td>花費時間</td><td>約 ${m} 分鐘</td></tr><tr><td>驗證碼</td><td><b>${code}</b></td></tr></table>
+ <p><b>請截圖此畫面作為完成證明 📸</b></p></div>
+ <p style="text-align:center"><button class="btn ghost" onclick="home()">返回首頁</button></p>`;
+}
+home();
+</script></body></html>
